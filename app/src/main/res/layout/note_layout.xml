@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    app:strokeColor="#DCD7D7"
+    app:strokeWidth="1dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:cardCornerRadius="5dp"
+    android:clickable="true"
+    android:focusable="true"
+    app:cardBackgroundColor="?attr/colorSurface"
+    app:rippleColor="?attr/colorPrimary"
+    android:checkable="true"
+    android:layout_margin="4dp"
+    android:elevation="3dp">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="10dp"
+       >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/title"
+            android:textColor="#474141"
+            android:layout_marginBottom="7dp"
+            android:text="New Note"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/title"
+            android:id="@+id/details"
+            android:textSize="20sp"
+            android:textColor="#0B0909"
+            android:text="Hola Bhola Sav se Naya\n
+hu mey Trea Trra Tera Kashur"/>
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>
