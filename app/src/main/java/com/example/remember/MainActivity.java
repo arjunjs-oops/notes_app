@@ -1,11 +1,15 @@
 package com.example.remember;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -14,7 +18,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.RelativeLayout;
 
-import com.example.remember.Model.Notes;
+import com.example.remember.Model.Notes.java.Notes;
 import com.example.remember.RecyclerView.NotesAdapter;
 import com.example.remember.Room.Repo;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -22,14 +26,15 @@ import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity
-implements NotesAdapter.onItemClick{
+implements NotesAdapter.onItemClick {
     RecyclerView recyclerView;
     FloatingActionButton actionButton;
     NotesAdapter adapter;
-//    Repo repo;
-    private  ArrayList<Notes> notes = new ArrayList<>();
+    private Repo repo;
+    private ArrayList<Notes> mNotes = new ArrayList<>();
     private static final String TAG = "MainActivity";
     CoordinatorLayout layout;
 
@@ -39,47 +44,53 @@ implements NotesAdapter.onItemClick{
         setContentView(R.layout.activity_main);
         layout = findViewById(R.id.parent_rel);
         recyclerView = findViewById(R.id.notes_list);
-        getSupportActionBar();
-        setTitle(R.string.app_name);
-//        repo = new Repo(getApplicationContext());
+        repo = new Repo(this);
+
+
+        setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
+        setTitle("Remember");
         actionButton = findViewById(R.id.fab);
         actionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this,NoteData.class);
+                Intent intent = new Intent(MainActivity.this, NoteData.class);
                 startActivity(intent);
             }
         });
         setRecyclerView();
-        //ToDo: Create A Database and Its DAO
-        dummyData();
+        getAllLive();
+        Log.d(TAG, "onCreate::"+repo.getAllNotes().getValue());
     }
 
-    private void dummyData() {
+    private void getAllLive() {
+        repo.getAllNotes().observe(this, new Observer<List<Notes>>() {
+            @Override
+            public void onChanged(@Nullable List<Notes> notes) {
+                Log.d(TAG, "onChanged: Called The Data");
+                if (mNotes.size() > 0) {
+                    mNotes.clear();
+                }
+                if (notes != null) {
+                    mNotes.addAll(notes);
+                }
 
-        for (int i = 0; i < 10; i++) {
-            Notes list = new Notes();
-            list.setTitle("Title: "+i);
-            list.setDate("Dec 1st 2020");
-            list.setDescription("Hello it's Me I've Wondering if after All this\n Years Its Like to me");
-            notes.add(list);
-            adapter.notifyDataSetChanged();
-        }
+                adapter.notifyDataSetChanged();
+            }
+        });
     }
-
-
 
 
     private void setRecyclerView() {
         adapter = new NotesAdapter(this);
-        adapter.setNotes(notes);
+        adapter.setNotes(mNotes);
         recyclerView.setAdapter(adapter);
-        recyclerView.setLayoutManager(new GridLayoutManager(this,2));
+        recyclerView.setLayoutManager(new StaggeredGridLayoutManager(2, 1));
         new ItemTouchHelper(simpleCallback).attachToRecyclerView(recyclerView);
 
 
     }
-    public  ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(0,ItemTouchHelper.RIGHT|ItemTouchHelper.LEFT) {
+
+    public ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT | ItemTouchHelper.LEFT) {
         @Override
         public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
             return false;
@@ -87,29 +98,36 @@ implements NotesAdapter.onItemClick{
 
         @Override
         public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-           final int position =  viewHolder.getAdapterPosition();
-         final Notes removed =   notes.remove(position);
-//            repo.removeData(notes.get(position));
-           adapter.notifyDataSetChanged();
-            Snackbar.make(layout,removed.getTitle()+" has been removed", Snackbar.LENGTH_LONG).setAction("Undo", new View.OnClickListener() {
+            final int position = viewHolder.getAdapterPosition();
+            final Notes removed = mNotes.get(position);
+            repo.removeData(removed);
+            adapter.notifyDataSetChanged();
+            Snackbar.make(layout,
+                    removed.getTitle() + " has been removed",
+                    Snackbar.LENGTH_LONG)
+                    .setAction("Undo",
+                            new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    notes.add(position,removed);
+                    repo.addData(removed);
                     adapter.notifyDataSetChanged();
                 }
             }).show();
 
 
+        }
+        }
+
+        ;
+
+        @Override
+        public void itemClick(int position) {
+            Log.d(TAG, "itemClick" + position + "was Clicked");
+            Intent intent = new Intent(MainActivity.this, NoteData.class);
+            intent.putExtra("Note_Data",  mNotes.get(position));
+            startActivity(intent);
 
         }
-    };
-
-    @Override
-    public void itemClick(int position) {
-        Log.d(TAG, "itemClick"+position+"was Clicked");
-        Intent intent = new Intent(MainActivity.this,NoteData.class);
-        intent.putExtra("Note_Data", (Parcelable) notes.get(position));
-        startActivity(intent);
-
     }
-}
+
+

@@ -1,52 +1,45 @@
-package com.example.remember.Model;
-
+package com.example.remember.Model.Notes.java;
 
 import android.os.Parcel;
 import android.os.Parcelable;
 
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
+import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
-@Entity(tableName = "Notes")
+@Entity(tableName = "notes")
 public class Notes implements Parcelable {
 
-
     @PrimaryKey(autoGenerate = true)
-     private  int id;
+    private int id;
 
     @ColumnInfo(name = "title")
     private String title;
 
-    @ColumnInfo(name = "Description")
-    private String description;
+    @ColumnInfo(name = "content")
+    private String content;
 
+    @ColumnInfo(name = "timestamp")
+    private String timestamp;
 
-    @ColumnInfo(name = "date")
-    private  String date;
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public Notes() {
-    }
-
-    public Notes(String title, String description, String date) {
+    public Notes(String title, String content, String timestamp) {
         this.title = title;
-        this.description = description;
-        this.date = date;
+        this.content = content;
+        this.timestamp = timestamp;
     }
+
+    @Ignore
+    public Notes() {
+
+    }
+
 
     protected Notes(Parcel in) {
         id = in.readInt();
         title = in.readString();
-        description = in.readString();
-        date = in.readString();
+        content = in.readString();
+        timestamp = in.readString();
     }
 
     public static final Creator<Notes> CREATOR = new Creator<Notes>() {
@@ -61,6 +54,14 @@ public class Notes implements Parcelable {
         }
     };
 
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
     public String getTitle() {
         return title;
     }
@@ -69,30 +70,31 @@ public class Notes implements Parcelable {
         this.title = title;
     }
 
-    public String getDescription() {
-        return description;
+    public String getContent() {
+        return content;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setContent(String content) {
+        this.content = content;
     }
 
-    public String getDate() {
-        return date;
+    public String getTimestamp() {
+        return timestamp;
     }
 
-    public void setDate(String date) {
-        this.date = date;
+    public void setTimestamp(String timestamp) {
+        this.timestamp = timestamp;
     }
 
     @Override
     public String toString() {
-        return "Notes{" +
+        return "Note{" +
                 "title='" + title + '\'' +
-                ", description='" + description + '\'' +
-                ", date='" + date + '\'' +
+                ", content='" + content + '\'' +
+                ", timestamp='" + timestamp + '\'' +
                 '}';
     }
+
 
     @Override
     public int describeContents() {
@@ -103,7 +105,7 @@ public class Notes implements Parcelable {
     public void writeToParcel(Parcel parcel, int i) {
         parcel.writeInt(id);
         parcel.writeString(title);
-        parcel.writeString(description);
-        parcel.writeString(date);
+        parcel.writeString(content);
+        parcel.writeString(timestamp);
     }
 }

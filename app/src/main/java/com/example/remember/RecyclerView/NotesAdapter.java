@@ -8,7 +8,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.remember.Model.Notes;
+import com.example.remember.Model.Notes.java.Notes;
 import com.example.remember.R;
 
 import java.util.ArrayList;
@@ -34,8 +34,9 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.ViewHolder> 
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        holder.title.setText(mNotes.get(position).getTitle().toString());
-        holder.contents.setText(mNotes.get(position).getDescription().toString());
+        holder.title.setText(mNotes.get(position).getTitle());
+        holder.date.setText(mNotes.get(position).getTimestamp());
+        holder.contents.setText(mNotes.get(position).getContent());
 
     }
 
@@ -45,13 +46,14 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.ViewHolder> 
     }
 
     class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        TextView title, contents;
+        TextView title, contents,date;
         onItemClick itemClick;
 
         public ViewHolder(@NonNull View itemView,onItemClick onItemClick) {
             super(itemView);
             title = itemView.findViewById(R.id.title);
             contents = itemView.findViewById(R.id.details);
+            date = itemView.findViewById(R.id.datetime);
             this.itemClick = onItemClick;
             itemView.setOnClickListener(this);
 

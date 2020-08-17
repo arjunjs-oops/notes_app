@@ -4,10 +4,17 @@ package com.example.remember.Room;
 
 
 import android.content.Context;
+import android.util.Log;
 
-import com.example.remember.Model.Notes;
+import androidx.lifecycle.LiveData;
+import androidx.room.Dao;
+
+import com.example.remember.Model.Notes.java.Notes;
+
+import java.util.List;
 
 public class Repo {
+    private static final String TAG = "Repo";
 
     Database mDatabase;
     DAO mDao;
@@ -17,12 +24,23 @@ public class Repo {
         mDao = mDatabase.getDAO();
     }
 
-    public void addData(Notes notes){
-       mDao.insertData(notes);
+    public void addData(final Notes notes) {
+        new AsyncTaskAdd(mDatabase.getDAO()).execute(notes);
 
     }
+    public LiveData<List<Notes>> getAllNotes(){
+        return mDao.getAllNotes();
+    }
 
-    public void removeData(Notes notes){
-        mDao.deleteData(notes);
+
+    public void removeData(final Notes notes){
+        new AsyncTaskDelete(mDatabase.getDAO()).execute(notes);
+    }
+
+
+    public void updateNote(final Notes notes){
+        Log.d(TAG, "Updating....");
+        new AsyncTask(mDatabase.getDAO()).execute(notes);
+
     }
 }

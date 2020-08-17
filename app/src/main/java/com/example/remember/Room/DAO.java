@@ -5,20 +5,36 @@ import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
+import androidx.room.Update;
 
-import com.example.remember.Model.Notes;
+import com.example.remember.Model.Notes.java.Notes;;
 
 import java.util.List;
 
 @Dao
 public  interface DAO {
+    @Update(entity = Notes.class)
+    int updateNotes(Notes...notes);
 
     @Insert
-    void insertData(Notes...notes);
+    long[] insert(Notes...notes);
+
+
+    @Query("SELECT * FROM notes")
+    LiveData<List<Notes>> getAllNotes();
 
 
     @Delete
-    void deleteData(Notes notes);
+    void deleteNotes(Notes...notes);
+
+
+
+
+
+
+
+
+
 
 
 
