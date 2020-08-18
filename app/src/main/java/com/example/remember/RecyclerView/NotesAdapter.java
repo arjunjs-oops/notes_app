@@ -1,8 +1,12 @@
 package com.example.remember.RecyclerView;
 
+import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -10,20 +14,33 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.remember.Model.Notes.java.Notes;
 import com.example.remember.R;
+import com.example.remember.Room.Repo;
 
 import java.util.ArrayList;
-import java.util.zip.Inflater;
+import java.util.Collection;
+import java.util.List;
 
-public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.ViewHolder> {
+public class NotesAdapter
+        extends RecyclerView.Adapter<NotesAdapter.ViewHolder> {
     onItemClick mItemClick;
-    ArrayList<Notes> mNotes;
+    List<Notes> mNotes;
+    List<Notes> mDuplicate;
+    Repo mRepo;
+    Context context;
+    private static final String TAG = "NotesAdapter";
     public NotesAdapter(onItemClick ItemClick) {
       this.mItemClick = ItemClick;
     }
 
-    public void setNotes(ArrayList<Notes> mNotes){
-        this.mNotes = mNotes;
+    public void setNotes(Context context){
+        this.context = context;
+
     }
+
+    public void setArray(ArrayList<Notes> mmNotes){
+        this.mNotes = mmNotes;
+    }
+
 
     @NonNull
     @Override
@@ -44,6 +61,8 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.ViewHolder> 
     public int getItemCount() {
         return mNotes.size();
     }
+
+
 
     class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         TextView title, contents,date;

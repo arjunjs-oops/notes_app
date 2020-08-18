@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+<group>
+
+    <item
+        android:id="@+id/list"
+        app:showAsAction="withText"
+        android:title="listView" />
+    <item
+        android:id="@+id/deleted"
+        app:showAsAction="withText"
+        android:title="Deleted" />
+</group>
+
+    <item
+        android:id="@+id/search"
+        app:showAsAction="always"
+        android:title="Search"
+        android:icon="@drawable/ic_baseline_search_24"
+        app:actionViewClass="android.widget.SearchView" />
+
+
+
+</menu>

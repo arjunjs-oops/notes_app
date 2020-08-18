@@ -24,6 +24,10 @@ public  interface DAO {
     LiveData<List<Notes>> getAllNotes();
 
 
+    @Query("SELECT * FROM notes WHERE title LIKE :title")
+     LiveData<List<Notes>> getCustomTitle(String...title);
+
+
     @Delete
     void deleteNotes(Notes...notes);
 

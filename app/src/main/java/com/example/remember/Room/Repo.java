@@ -43,4 +43,6 @@ public class Repo {
         new AsyncTask(mDatabase.getDAO()).execute(notes);
 
     }
+
+    public LiveData<List<Notes>> AsyncTaskCustom(String...title){ return mDao.getCustomTitle(title);}
 }

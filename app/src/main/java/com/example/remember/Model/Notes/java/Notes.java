@@ -3,13 +3,18 @@ package com.example.remember.Model.Notes.java;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
+import java.util.Collection;
+import java.util.Iterator;
+
 @Entity(tableName = "notes")
-public class Notes implements Parcelable {
+public class Notes implements Parcelable, Collection<Notes> {
 
     @PrimaryKey(autoGenerate = true)
     private int id;
@@ -107,5 +112,74 @@ public class Notes implements Parcelable {
         parcel.writeString(title);
         parcel.writeString(content);
         parcel.writeString(timestamp);
+    }
+
+
+    @Override
+    public int size() {
+        return 0;
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return false;
+    }
+
+    @Override
+    public boolean contains(@Nullable Object o) {
+        return false;
+    }
+
+    @NonNull
+    @Override
+    public Iterator<Notes> iterator() {
+        return null;
+    }
+
+    @NonNull
+    @Override
+    public Object[] toArray() {
+        return new Object[0];
+    }
+
+    @NonNull
+    @Override
+    public <T> T[] toArray(@NonNull T[] ts) {
+        return null;
+    }
+
+    @Override
+    public boolean add(Notes notes) {
+        return false;
+    }
+
+    @Override
+    public boolean remove(@Nullable Object o) {
+        return false;
+    }
+
+    @Override
+    public boolean containsAll(@NonNull Collection<?> collection) {
+        return false;
+    }
+
+    @Override
+    public boolean addAll(@NonNull Collection<? extends Notes> collection) {
+        return false;
+    }
+
+    @Override
+    public boolean removeAll(@NonNull Collection<?> collection) {
+        return false;
+    }
+
+    @Override
+    public boolean retainAll(@NonNull Collection<?> collection) {
+        return false;
+    }
+
+    @Override
+    public void clear() {
+
     }
 }
