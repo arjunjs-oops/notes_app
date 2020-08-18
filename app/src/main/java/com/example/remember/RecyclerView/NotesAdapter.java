@@ -14,33 +14,37 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.remember.Model.Notes.java.Notes;
 import com.example.remember.R;
-import com.example.remember.Room.Repo;
+
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 public class NotesAdapter
-        extends RecyclerView.Adapter<NotesAdapter.ViewHolder> {
+        extends RecyclerView.Adapter<NotesAdapter.ViewHolder>
+        implements Filterable{
     onItemClick mItemClick;
     List<Notes> mNotes;
     List<Notes> mDuplicate;
-    Repo mRepo;
     Context context;
     private static final String TAG = "NotesAdapter";
     public NotesAdapter(onItemClick ItemClick) {
       this.mItemClick = ItemClick;
     }
 
-    public void setNotes(Context context){
+    public  NotesAdapter(Context context,ArrayList<Notes> mmNotes){
         this.context = context;
-
-    }
-
-    public void setArray(ArrayList<Notes> mmNotes){
         this.mNotes = mmNotes;
+        this.mDuplicate = new ArrayList<>(mNotes);
     }
 
+
+    public void addArrayList(){
+
+        Log.d(TAG, "setNotes: "+mNotes.size());
+        Log.d(TAG, "Size"+mDuplicate.size());
+    }
 
     @NonNull
     @Override
@@ -62,6 +66,45 @@ public class NotesAdapter
         return mNotes.size();
     }
 
+
+    @Override
+    public Filter getFilter() {
+        return filter;
+    }
+
+    Filter filter = new Filter() {
+        private static final String TAG = "Filter";
+        @Override
+        protected FilterResults performFiltering(CharSequence charSequence) {
+            Log.d(TAG, "EveryTime Called");
+            List<Notes> filteredResult = new ArrayList<>();
+            String userInput = charSequence.toString().toLowerCase().trim();
+           if (userInput == null|| userInput.length() == 0){
+               Log.d(TAG, "Zero Search");
+               filteredResult.addAll(mDuplicate);
+               Log.d(TAG, "All"+filteredResult.size());
+           }
+           else {
+               for (Notes notes: mDuplicate) {
+                   if(notes.getTitle().toLowerCase().contains(userInput)){
+                       Log.d(TAG, "performFiltering:"+notes.getTitle());
+                       filteredResult.add(notes);
+                       Log.d(TAG, "Filter Size"+filteredResult.size());
+                   }
+               }
+           }
+            FilterResults result = new FilterResults();
+            result.values =  filteredResult;
+            return result;
+        }
+
+        @Override
+        protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
+            mNotes.clear();
+            mNotes.addAll((Collection<? extends Notes>) filterResults.values);
+            notifyDataSetChanged();
+        }
+    };
 
 
     class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {

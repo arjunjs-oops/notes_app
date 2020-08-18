@@ -5,6 +5,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.core.view.MenuItemCompat;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.ItemTouchHelper;
@@ -28,6 +29,7 @@ import android.widget.Toast;
 import com.example.remember.Model.Notes.java.Notes;
 import com.example.remember.RecyclerView.NotesAdapter;
 import com.example.remember.Room.Repo;
+import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -35,7 +37,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity
-implements NotesAdapter.onItemClick {
+implements NotesAdapter.onItemClick,
+SearchView.OnQueryTextListener{
     RecyclerView recyclerView;
     FloatingActionButton actionButton;
     NotesAdapter adapter;
@@ -45,17 +48,21 @@ implements NotesAdapter.onItemClick {
     private int state = inGridView;
     private ArrayList<Notes> mNotes = new ArrayList<>();
     CoordinatorLayout layout;
+    SearchView searchView;
     private static final String TAG = "MainActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        setSupportActionBar((MaterialToolbar)findViewById(R.id.toolbar));
         layout = findViewById(R.id.parent_rel);
         recyclerView = findViewById(R.id.notes_list);
+        searchView =(SearchView)findViewById(R.id.search);
+        searchView.setOnQueryTextListener(this);
         repo = new Repo(this);
-        setMenuOptions();
         actionButton = findViewById(R.id.fab);
+
         actionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -69,35 +76,36 @@ implements NotesAdapter.onItemClick {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.options, menu);
-        MenuItem menuItem = menu.findItem(R.id.search);
+        getMenuInflater().inflate(R.menu.options,menu);
+        MenuItem item =  menu.findItem(R.id.search);
         return true;
     }
 
 
-    private void setMenuOptions() {
-        setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                switch (item.getItemId()) {
-                    case R.id.list:
-                        Toast.makeText(MainActivity.this, "Clicked List", Toast.LENGTH_SHORT).show();
-                        state = inListView;
-                        setRecyclerView();
-                        break;
-                    case R.id.deleted:
-                        Intent intent = new Intent(MainActivity.this, Deleted.class);
-                        startActivity(intent);
-                        Toast.makeText(MainActivity.this, "Deleted", Toast.LENGTH_SHORT).show();
-                        break;
-                }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.list:
+                state = inListView;
+                setRecyclerView();
                 return true;
-            }
-        });
+            case R.id.deleted:
+                Intent intent = new Intent(MainActivity.this,Deleted.class);
+                startActivity(intent);
+                return true;
 
+            default: return super.onOptionsItemSelected(item);
+        }
+    }
+    @Override
+    public boolean onQueryTextSubmit(String query) {
+        return false;
+    }
 
+    @Override
+    public boolean onQueryTextChange(String newText) {
+        adapter.getFilter().filter(newText);
+        return true;
     }
 
     private void getAllLive() {
@@ -110,6 +118,7 @@ implements NotesAdapter.onItemClick {
                 if (notes != null) {
                     mNotes.addAll(notes);
                 }
+                Log.d(TAG, "setRecyclerView: "+mNotes.size());
 
                 adapter.notifyDataSetChanged();
             }
@@ -118,10 +127,10 @@ implements NotesAdapter.onItemClick {
 
 
     private void setRecyclerView() {
-        adapter = new NotesAdapter(this);
-        adapter.setNotes(getApplicationContext());
-        adapter.setArray(mNotes);
+        adapter = new NotesAdapter(this,mNotes);
+
         recyclerView.setAdapter(adapter);
+        adapter.addArrayList();
         new ItemTouchHelper(simpleCallback).attachToRecyclerView(recyclerView);
 
         if(state ==1) {
@@ -169,17 +178,5 @@ implements NotesAdapter.onItemClick {
 
     }
 
-    private void updateCustomNotes(String s) {
-        repo.AsyncTaskCustom(s).observe((LifecycleOwner) getApplicationContext(), new Observer<List<Notes>>() {
-            @Override
-            public void onChanged(List<Notes> notes) {
 
-                if (notes.size() > 0) {
-                    mNotes.clear();
-                    mNotes.addAll(notes);
-                    adapter.notifyDataSetChanged();
-                }
-            }
-        });
-    }
 }
