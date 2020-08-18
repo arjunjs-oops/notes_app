@@ -1,4 +1,4 @@
-package com.example.remember.Room;//ToDo Create A DAO for Database Communication
+package com.example.remember.Room.NewDatabase;//ToDo Create A DAO for Database Communication
 
 import androidx.lifecycle.LiveData;
 import androidx.room.Dao;

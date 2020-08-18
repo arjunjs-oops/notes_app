@@ -1,9 +1,6 @@
-package com.example.remember.Room;
+package com.example.remember.Room.NewDatabase;
 
-import android.content.Context;
 import android.os.AsyncTask;
-
-import com.example.remember.Model.Notes.java.Notes;
 
 public class AsyncTaskCustom extends AsyncTask<String,Void,Void> {
 

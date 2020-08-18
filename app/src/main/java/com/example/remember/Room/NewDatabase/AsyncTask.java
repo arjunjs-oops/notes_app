@@ -1,9 +1,8 @@
-package com.example.remember.Room;
+package com.example.remember.Room.NewDatabase;
 
 import android.util.Log;
 
 import com.example.remember.Model.Notes.java.Notes;
-
 
 
 public class AsyncTask extends android.os.AsyncTask<Notes,Void,Void> {

@@ -1,6 +1,4 @@
-package com.example.remember.Room;
-
-import android.util.Log;
+package com.example.remember.Room.NewDatabase;
 
 import com.example.remember.Model.Notes.java.Notes;
 

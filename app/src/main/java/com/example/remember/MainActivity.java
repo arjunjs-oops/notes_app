@@ -3,32 +3,24 @@ package com.example.remember;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
-import androidx.core.view.MenuItemCompat;
-import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
-import androidx.room.Delete;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.SearchView;
-import android.widget.Toast;
 
 import com.example.remember.Model.Notes.java.Notes;
 import com.example.remember.RecyclerView.NotesAdapter;
-import com.example.remember.Room.Repo;
+import com.example.remember.Room.NewDatabase.Repo;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
@@ -46,6 +38,9 @@ SearchView.OnQueryTextListener{
     private static final int inListView = 0;
     private  static final int inGridView = 1;
     private int state = inGridView;
+    private static final int deleted_state = 1;
+    private static final int undo_deleted = 0;
+    private  int deletedState;
     private ArrayList<Notes> mNotes = new ArrayList<>();
     CoordinatorLayout layout;
     SearchView searchView;
@@ -119,7 +114,7 @@ SearchView.OnQueryTextListener{
                     mNotes.addAll(notes);
                 }
                 Log.d(TAG, "setRecyclerView: "+mNotes.size());
-
+                adapter.addArrayList(mNotes);
                 adapter.notifyDataSetChanged();
             }
         });
@@ -130,7 +125,6 @@ SearchView.OnQueryTextListener{
         adapter = new NotesAdapter(this,mNotes);
 
         recyclerView.setAdapter(adapter);
-        adapter.addArrayList();
         new ItemTouchHelper(simpleCallback).attachToRecyclerView(recyclerView);
 
         if(state ==1) {
@@ -154,6 +148,8 @@ SearchView.OnQueryTextListener{
             final int position = viewHolder.getAdapterPosition();
             final Notes removed = mNotes.get(position);
             repo.removeData(removed);
+            deletedState = deleted_state;
+
             adapter.notifyDataSetChanged();
             Snackbar.make(layout,
                     removed.getTitle() + " has been removed",
@@ -163,12 +159,18 @@ SearchView.OnQueryTextListener{
                                 @Override
                                 public void onClick(View view) {
                                     repo.addData(removed);
+                                    deletedState = undo_deleted;
                                     adapter.notifyDataSetChanged();
                                 }
                             }).show();
+            if(deletedState==1){
+                //TODO :Pass to Deleted Activity
+            }
         }
 
+
     };
+
 
     @Override
     public void itemClick(int position) {

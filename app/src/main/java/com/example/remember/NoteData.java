@@ -2,8 +2,6 @@ package com.example.remember;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.Context;
-import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
@@ -24,7 +22,7 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.remember.Model.Notes.java.Notes;
-import com.example.remember.Room.Repo;
+import com.example.remember.Room.NewDatabase.Repo;
 //import com.example.remember.Utils.DateTime;
 
 public class NoteData extends AppCompatActivity implements

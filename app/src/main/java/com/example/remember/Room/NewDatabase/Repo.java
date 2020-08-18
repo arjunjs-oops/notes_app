@@ -1,4 +1,4 @@
-package com.example.remember.Room;
+package com.example.remember.Room.NewDatabase;
 //Interaction btn Database and UI
 //MVM Architecture
 
@@ -7,7 +7,6 @@ import android.content.Context;
 import android.util.Log;
 
 import androidx.lifecycle.LiveData;
-import androidx.room.Dao;
 
 import com.example.remember.Model.Notes.java.Notes;
 
@@ -43,6 +42,8 @@ public class Repo {
         new AsyncTask(mDatabase.getDAO()).execute(notes);
 
     }
+
+
 
     public LiveData<List<Notes>> AsyncTaskCustom(String...title){ return mDao.getCustomTitle(title);}
 }

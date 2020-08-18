@@ -36,14 +36,12 @@ public class NotesAdapter
     public  NotesAdapter(Context context,ArrayList<Notes> mmNotes){
         this.context = context;
         this.mNotes = mmNotes;
-        this.mDuplicate = new ArrayList<>(mNotes);
     }
 
 
-    public void addArrayList(){
+    public void addArrayList(ArrayList<Notes> notes){
+        this.mDuplicate = new ArrayList<>(notes);
 
-        Log.d(TAG, "setNotes: "+mNotes.size());
-        Log.d(TAG, "Size"+mDuplicate.size());
     }
 
     @NonNull
