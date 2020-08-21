@@ -20,10 +20,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
 
 import com.example.remember.Model.Notes.java.Notes;
-import com.example.remember.Room.NewDatabase.Repo;
-//import com.example.remember.Utils.DateTime;
+import com.example.remember.Room.Adding.PostViewModel;
+import com.example.remember.Utils.DateTime;
 
 public class NoteData extends AppCompatActivity implements
         View.OnTouchListener,
@@ -39,7 +41,7 @@ public class NoteData extends AppCompatActivity implements
     GestureDetector mDetector;
     Notes mNotes;
     Notes mFinal;
-    Repo repo;
+    PostViewModel postViewModel;
     boolean isNewNote;
     private static final String TAG = "NoteData";
     private static final int in_Edit_Mode = 1;
@@ -50,8 +52,8 @@ public class NoteData extends AppCompatActivity implements
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.detail_activity);
-        repo = new Repo(this);
         instantiate();
+        postViewModel = ViewModelProviders.of(this).get(PostViewModel.class);
       onClickEventManager();
 
 
@@ -68,23 +70,15 @@ public class NoteData extends AppCompatActivity implements
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     private void saveChanges(){
-        if(isNewNote){
-            Log.d(TAG, "Add");
-        insertData();
-        }
-        else{
-            Log.d(TAG, "Edit");
-            update();
-        }
+        if(isNewNote){insertData();}
+        else{ update(); }
     }
-    private void update(){
-        Log.d(TAG, "insertData:"+mFinal.getContent()+" \n"+mFinal.getTitle()+mFinal.getId());
-        repo.updateNote(mFinal);
-    }
+
+
+    private void update(){ postViewModel.updatePost(mFinal); }
 
     private void insertData(){
-
-        repo.addData(mFinal);
+        postViewModel.savePost(mFinal);
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -120,6 +114,7 @@ public class NoteData extends AppCompatActivity implements
         mFinal = new Notes();
         mNotes.setTitle(getTitle.getText().toString());
         mFinal.setTitle(getTitle.getText().toString());
+        mFinal.setTimestamp(DateTime.getDateTime());
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)

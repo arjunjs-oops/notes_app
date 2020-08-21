@@ -1,15 +1,17 @@
-package com.example.remember.Room.NewDatabase;
+package com.example.remember.Room.Adding;
 
+import android.app.Application;
 import android.content.Context;
 
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 
 import com.example.remember.Model.Notes.java.Notes;
+
 ;
 
 
-@androidx.room.Database(entities = Notes.class,views = {},version = 4)
+@androidx.room.Database(entities = {Notes.class},views = {},version = 6)
 public abstract class Database extends RoomDatabase {
     
     private static final String db_name = "Notes_DB";
@@ -21,10 +23,12 @@ public abstract class Database extends RoomDatabase {
                     Database.class,
                     db_name)
                     .fallbackToDestructiveMigration()
+                    .allowMainThreadQueries()
                     .build();
         }
         return instance;
     }
+
 
     public abstract DAO getDAO();
 }

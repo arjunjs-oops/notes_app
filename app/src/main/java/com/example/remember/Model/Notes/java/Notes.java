@@ -1,17 +1,23 @@
 package com.example.remember.Model.Notes.java;
 
+import android.content.Context;
 import android.os.Parcel;
 import android.os.Parcelable;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.lifecycle.LiveData;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
+
+import com.example.remember.Room.Adding.Database;
+
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
 @Entity(tableName = "notes")
 public class Notes implements Parcelable, Collection<Notes> {
@@ -31,14 +37,13 @@ public class Notes implements Parcelable, Collection<Notes> {
     public Notes(String title, String content, String timestamp) {
         this.title = title;
         this.content = content;
-        this.timestamp = timestamp;
+        this.timestamp =timestamp;
     }
 
     @Ignore
     public Notes() {
 
     }
-
 
     protected Notes(Parcel in) {
         id = in.readInt();

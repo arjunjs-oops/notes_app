@@ -1,4 +1,4 @@
-package com.example.remember.Room.NewDatabase;//ToDo Create A DAO for Database Communication
+package com.example.remember.Room.Adding;//ToDo Create A DAO for Database Communication
 
 import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
@@ -17,19 +17,19 @@ public  interface DAO {
     int updateNotes(Notes...notes);
 
     @Insert
-    long[] insert(Notes...notes);
+    void insert(Notes...notes);
 
 
     @Query("SELECT * FROM notes")
     LiveData<List<Notes>> getAllNotes();
 
 
-    @Query("SELECT * FROM notes WHERE title LIKE :title")
-     LiveData<List<Notes>> getCustomTitle(String...title);
+    @Query("SELECT * FROM notes WHERE title LIKE '%' || :query || '%'")
+    LiveData<List<Notes>> findSearchValue(String query);
 
 
     @Delete
-    void deleteNotes(Notes...notes);
+    void deleteNotes(Notes notes);
 
 
 

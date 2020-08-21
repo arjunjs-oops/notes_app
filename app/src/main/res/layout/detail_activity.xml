@@ -26,6 +26,7 @@
         android:layout_below="@+id/app_bar"
         android:imeOptions="flagNoExtractUi"
         android:windowSoftInputMode="stateVisible"
+        android:background="@null"
         android:layout_height="match_parent"/>
 
 

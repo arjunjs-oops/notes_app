@@ -1,17 +1,20 @@
-package com.example.remember;
 
+package com.example.remember;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -20,31 +23,26 @@ import android.widget.SearchView;
 
 import com.example.remember.Model.Notes.java.Notes;
 import com.example.remember.RecyclerView.NotesAdapter;
-import com.example.remember.Room.NewDatabase.Repo;
+import com.example.remember.Room.Adding.PostViewModel;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
-
 import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity
-implements NotesAdapter.onItemClick,
-SearchView.OnQueryTextListener{
+        implements NotesAdapter.onItemClick,
+        SearchView.OnQueryTextListener{
     RecyclerView recyclerView;
     FloatingActionButton actionButton;
-    NotesAdapter adapter;
-    private Repo repo;
-    private static final int inListView = 0;
-    private  static final int inGridView = 1;
-    private int state = inGridView;
-    private static final int deleted_state = 1;
-    private static final int undo_deleted = 0;
-    private  int deletedState;
+    NotesAdapter gAdapter;
+    Menu menuItem;
+    Notes removed;
+    PostViewModel postViewModel;
     private ArrayList<Notes> mNotes = new ArrayList<>();
     CoordinatorLayout layout;
     SearchView searchView;
-    private static final String TAG = "MainActivity";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,9 +53,16 @@ SearchView.OnQueryTextListener{
         recyclerView = findViewById(R.id.notes_list);
         searchView =(SearchView)findViewById(R.id.search);
         searchView.setOnQueryTextListener(this);
-        repo = new Repo(this);
-        actionButton = findViewById(R.id.fab);
+        postViewModel = ViewModelProviders.of(this).get(PostViewModel.class);
+        postViewModel.getAllPosts().observe(this, new Observer<List<Notes>>() {
+            @Override
+            public void onChanged(List<Notes> posts) {
+                gAdapter.setArrayList(posts);
+                gAdapter.notifyDataSetChanged();
+            }
+        });
 
+        actionButton = findViewById(R.id.fab);
         actionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -66,32 +71,51 @@ SearchView.OnQueryTextListener{
             }
         });
         setRecyclerView();
-        getAllLive();
     }
 
+    @SuppressLint("RestrictedApi")
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.options,menu);
-        MenuItem item =  menu.findItem(R.id.search);
-        return true;
+        this.menuItem = menu;
+        return super.onCreateOptionsMenu(menu);
     }
+
 
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case R.id.list:
-                state = inListView;
-                setRecyclerView();
+                boolean isSwitched = gAdapter.toggleItemViewType();
+                changeIcon(isSwitched);
+                recyclerView.setLayoutManager(isSwitched?new LinearLayoutManager(this):new StaggeredGridLayoutManager(2,1));
+                gAdapter.notifyDataSetChanged();
                 return true;
-            case R.id.deleted:
-                Intent intent = new Intent(MainActivity.this,Deleted.class);
-                startActivity(intent);
-                return true;
-
             default: return super.onOptionsItemSelected(item);
         }
     }
+
+    public void changeIcon(final Boolean isSwitched){
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                MenuItem item = menuItem.findItem(R.id.list);
+
+                if (isSwitched) {
+                    item.setIcon(R.drawable.ic_baseline_grid_on_24);
+                }
+                else {
+                    item.setIcon(R.drawable.ic_baseline_format_list_bulleted_24);
+
+                }
+            }
+        });
+    }
+
+
+
+
     @Override
     public boolean onQueryTextSubmit(String query) {
         return false;
@@ -99,43 +123,28 @@ SearchView.OnQueryTextListener{
 
     @Override
     public boolean onQueryTextChange(String newText) {
-        adapter.getFilter().filter(newText);
+        postViewModel.getCustomItem(newText).observe(this, new Observer<List<Notes>>() {
+            @Override
+            public void onChanged(List<Notes> posts) {
+                gAdapter.setArrayList(posts);
+            }
+        });
+
+
         return true;
     }
 
-    private void getAllLive() {
-        repo.getAllNotes().observe(this, new Observer<List<Notes>>() {
-            @Override
-            public void onChanged(@Nullable List<Notes> notes) {
-                if (mNotes.size() > 0) {
-                    mNotes.clear();
-                }
-                if (notes != null) {
-                    mNotes.addAll(notes);
-                }
-                Log.d(TAG, "setRecyclerView: "+mNotes.size());
-                adapter.addArrayList(mNotes);
-                adapter.notifyDataSetChanged();
-            }
-        });
-    }
 
 
     private void setRecyclerView() {
-        adapter = new NotesAdapter(this,mNotes);
-
-        recyclerView.setAdapter(adapter);
+        gAdapter = new NotesAdapter(this, mNotes, this);
+        recyclerView.setAdapter(gAdapter);
+        recyclerView.setLayoutManager(new StaggeredGridLayoutManager(2, 1));
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
         new ItemTouchHelper(simpleCallback).attachToRecyclerView(recyclerView);
 
-        if(state ==1) {
-            recyclerView.setLayoutManager(new StaggeredGridLayoutManager(2, 1));
-        }
-        else {
-            recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        }
-
-
     }
+
 
     public ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT | ItemTouchHelper.LEFT) {
         @Override
@@ -145,27 +154,21 @@ SearchView.OnQueryTextListener{
 
         @Override
         public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-            final int position = viewHolder.getAdapterPosition();
-            final Notes removed = mNotes.get(position);
-            repo.removeData(removed);
-            deletedState = deleted_state;
+             int position = viewHolder.getLayoutPosition();
+             removed = mNotes.get(position);
+             postViewModel.deletePost(removed);
+             gAdapter.notifyDataSetChanged();
+            Snackbar snackbar = Snackbar.make(layout, removed.getTitle() + " has been removed", Snackbar.LENGTH_LONG);
+            snackbar.setAction("Undo",
+                    new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                           postViewModel.savePost(removed);
+                            gAdapter.notifyDataSetChanged();
+                        }
+                    });
+            snackbar.show();
 
-            adapter.notifyDataSetChanged();
-            Snackbar.make(layout,
-                    removed.getTitle() + " has been removed",
-                    Snackbar.LENGTH_LONG)
-                    .setAction("Undo",
-                            new View.OnClickListener() {
-                                @Override
-                                public void onClick(View view) {
-                                    repo.addData(removed);
-                                    deletedState = undo_deleted;
-                                    adapter.notifyDataSetChanged();
-                                }
-                            }).show();
-            if(deletedState==1){
-                //TODO :Pass to Deleted Activity
-            }
         }
 
 

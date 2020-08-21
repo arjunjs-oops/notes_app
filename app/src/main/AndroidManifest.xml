@@ -10,7 +10,6 @@
         android:roundIcon="@drawable/ic_checklist"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".Deleted"></activity>
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

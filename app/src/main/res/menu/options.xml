@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".activities.BaseActivity">
 
-    <item
-        android:id="@+id/list"
-        app:showAsAction="withText"
-        android:title="listView" />
-    <item
-        android:id="@+id/deleted"
-        app:showAsAction="withText"
-        android:title="Deleted" />
 
+
+            <item
+                android:id="@+id/list"
+                app:showAsAction="always"
+                android:icon="@drawable/ic_baseline_format_list_bulleted_24"
+                android:title="Deleted" />
 
 
 

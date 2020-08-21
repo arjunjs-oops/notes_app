@@ -30,10 +30,12 @@
         <SearchView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:queryHint="Search Here"
+            android:queryHint="Enter Title to Search"
             android:layout_marginBottom="10dp"
             android:iconifiedByDefault="false"
             app:queryHint="Enter Title"
+            android:searchIcon="@null"
+            android:layout_margin="10dp"
             android:id="@+id/search"/>
         <androidx.recyclerview.widget.RecyclerView
             android:layout_width="match_parent"
