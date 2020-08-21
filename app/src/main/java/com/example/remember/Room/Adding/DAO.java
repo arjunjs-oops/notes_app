@@ -29,7 +29,7 @@ public  interface DAO {
 
 
     @Delete
-    void deleteNotes(Notes notes);
+    void deleteNotes(Notes...notes);
 
 
 

@@ -14,13 +14,11 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.SearchView;
-
 import com.example.remember.Model.Notes.java.Notes;
 import com.example.remember.RecyclerView.NotesAdapter;
 import com.example.remember.Room.Adding.PostViewModel;
@@ -33,11 +31,12 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity
         implements NotesAdapter.onItemClick,
         SearchView.OnQueryTextListener{
+    private static final String TAG = "MainActivity";
     RecyclerView recyclerView;
     FloatingActionButton actionButton;
     NotesAdapter gAdapter;
     Menu menuItem;
-    Notes removed;
+    private  ArrayList<Notes> deletedNotes = new ArrayList<>();
     PostViewModel postViewModel;
     private ArrayList<Notes> mNotes = new ArrayList<>();
     CoordinatorLayout layout;
@@ -154,17 +153,21 @@ public class MainActivity extends AppCompatActivity
 
         @Override
         public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-             int position = viewHolder.getLayoutPosition();
-             removed = mNotes.get(position);
-             postViewModel.deletePost(removed);
-             gAdapter.notifyDataSetChanged();
+            final Notes removed;
+            removed = mNotes.get(viewHolder.getAdapterPosition());
+            deletedNotes.add(removed);
+            mNotes.remove(viewHolder.getLayoutPosition());
+            if(removed != null) {
+                Log.d(TAG, "onSwiped is called "+removed.getTitle());
+                postViewModel.deletePost(removed);
+                gAdapter.notifyDataSetChanged();
+            }
             Snackbar snackbar = Snackbar.make(layout, removed.getTitle() + " has been removed", Snackbar.LENGTH_LONG);
             snackbar.setAction("Undo",
                     new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
                            postViewModel.savePost(removed);
-                            gAdapter.notifyDataSetChanged();
                         }
                     });
             snackbar.show();

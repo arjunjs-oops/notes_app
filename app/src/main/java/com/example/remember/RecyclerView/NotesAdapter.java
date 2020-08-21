@@ -60,15 +60,9 @@ public class NotesAdapter
 
     public void setArrayList(List<Notes> notes) {
         if (notes != null) {
-            /*PostDiffCallback postDiffCallback = new PostDiffCallback(data, newData);
-            DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(postDiffCallback);*/
-
             mNotes.clear();
             mNotes.addAll(notes);
-            notifyDataSetChanged();
-            //diffResult.dispatchUpdatesTo(this);
         } else {
-            // first initialization
             mNotes = notes;
         }
         notifyDataSetChanged();
