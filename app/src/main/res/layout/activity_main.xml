@@ -36,6 +36,7 @@
             app:queryHint="Enter Title"
             android:searchIcon="@null"
             android:layout_margin="10dp"
+            android:imeOptions="flagNoExtractUi"
             android:id="@+id/search"/>
         <androidx.recyclerview.widget.RecyclerView
             android:layout_width="match_parent"
