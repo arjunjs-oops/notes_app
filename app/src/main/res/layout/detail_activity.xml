@@ -26,9 +26,7 @@
         android:padding="16dp"
         android:layout_below="@+id/app_bar"
         android:imeOptions="flagNoExtractUi"
-        android:windowSoftInputMode="stateVisible"
         android:background="@null"
-        android:inputType="textAutoCorrect"
         android:layout_height="match_parent"/>
 
 
