@@ -13,20 +13,31 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.SearchView;
+import android.widget.Toast;
+
+import com.example.remember.Model.Notes.java.DeletedNotes;
 import com.example.remember.Model.Notes.java.Notes;
 import com.example.remember.RecyclerView.NotesAdapter;
 import com.example.remember.Room.Adding.PostViewModel;
+import com.example.remember.Utils.DateTime;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import java.util.ArrayList;
 import java.util.List;
+
+import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
+import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt;
 
 public class MainActivity extends AppCompatActivity
         implements NotesAdapter.onItemClick,
@@ -36,48 +47,69 @@ public class MainActivity extends AppCompatActivity
     FloatingActionButton actionButton;
     NotesAdapter gAdapter;
     Menu menuItem;
-    private  ArrayList<Notes> deletedNotes = new ArrayList<>();
+    SharedPreferences preferences ;
+    SharedPreferences.Editor editor;
     PostViewModel postViewModel;
-    private ArrayList<Notes> mNotes = new ArrayList<>();
+    private List<Notes> mNotes = new ArrayList<>();
     CoordinatorLayout layout;
+    private static final String NamePreference="RememberAppPreference";
     SearchView searchView;
+    Notes deletedNote;
+    private boolean aBoolean;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        setSupportActionBar((MaterialToolbar)findViewById(R.id.toolbar));
+
+        //Changing the System Status Bar Theme
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+        }
+
+        //Shared Preference Related Stuff
+        preferences = this.getSharedPreferences(NamePreference,MODE_PRIVATE);
+        editor = preferences.edit();
+        aBoolean = preferences.getBoolean("ShouldShow",false);
+        if(!aBoolean){ doAllMagic(); }
+
+         setSupportActionBar((MaterialToolbar)findViewById(R.id.toolbar));
+
         layout = findViewById(R.id.parent_rel);
         recyclerView = findViewById(R.id.notes_list);
-        searchView =(SearchView)findViewById(R.id.search);
+        searchView = findViewById(R.id.search);
+
+
         searchView.setOnQueryTextListener(this);
+        setRecyclerView();
         postViewModel = ViewModelProviders.of(this).get(PostViewModel.class);
         postViewModel.getAllPosts().observe(this, new Observer<List<Notes>>() {
             @Override
             public void onChanged(List<Notes> posts) {
-                gAdapter.setArrayList(posts);
-                gAdapter.notifyDataSetChanged();
+                mNotes = posts;
+                gAdapter.setArrayList(mNotes);
             }
         });
 
         actionButton = findViewById(R.id.fab);
-        actionButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, NoteData.class);
-                startActivity(intent);
-            }
-        });
-        setRecyclerView();
-    }
 
-    @SuppressLint("RestrictedApi")
+
+            actionButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent intent = new Intent(MainActivity.this, NoteData.class);
+                    startActivity(intent);
+                }
+            });
+        }
+
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.options,menu);
         this.menuItem = menu;
-        return super.onCreateOptionsMenu(menu);
+        return true;
     }
 
 
@@ -86,11 +118,18 @@ public class MainActivity extends AppCompatActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case R.id.list:
+                if(mNotes.size()>0){
                 boolean isSwitched = gAdapter.toggleItemViewType();
                 changeIcon(isSwitched);
-                recyclerView.setLayoutManager(isSwitched?new LinearLayoutManager(this):new StaggeredGridLayoutManager(2,1));
-                gAdapter.notifyDataSetChanged();
+                recyclerView.setLayoutManager(isSwitched?new LinearLayoutManager(this):new StaggeredGridLayoutManager(2,1));}
+                else {
+                }
                 return true;
+            case R.id.deleted:
+                Intent intent = new Intent(MainActivity.this,Deleted.class);
+                startActivity(intent);
+                return true;
+
             default: return super.onOptionsItemSelected(item);
         }
     }
@@ -125,6 +164,9 @@ public class MainActivity extends AppCompatActivity
         postViewModel.getCustomItem(newText).observe(this, new Observer<List<Notes>>() {
             @Override
             public void onChanged(List<Notes> posts) {
+                if(posts.size()==0){
+                    Toast.makeText(MainActivity.this, "No Item Found", Toast.LENGTH_SHORT).show();
+                }
                 gAdapter.setArrayList(posts);
             }
         });
@@ -153,38 +195,90 @@ public class MainActivity extends AppCompatActivity
 
         @Override
         public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-            final Notes removed;
-            removed = mNotes.get(viewHolder.getAdapterPosition());
-            deletedNotes.add(removed);
+            deletedNote = mNotes.get(viewHolder.getAdapterPosition());
             mNotes.remove(viewHolder.getLayoutPosition());
-            if(removed != null) {
-                Log.d(TAG, "onSwiped is called "+removed.getTitle());
-                postViewModel.deletePost(removed);
-                gAdapter.notifyDataSetChanged();
-            }
-            Snackbar snackbar = Snackbar.make(layout, removed.getTitle() + " has been removed", Snackbar.LENGTH_LONG);
-            snackbar.setAction("Undo",
-                    new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                           postViewModel.savePost(removed);
-                        }
-                    });
-            snackbar.show();
-
+            postViewModel.deletePost(deletedNote);
+            DeletedNotes deletedNotes= new DeletedNotes();
+            deletedNotes.setTimestamp(deletedNote.getTimestamp());
+            deletedNotes.setContent(deletedNote.getContent());
+            deletedNotes.setTitle(deletedNote.getTitle());
+            deletedNotes.setDeleted(DateTime.getDateTime().toString());
+            deletedNotes.setPreviousID(deletedNotes.getId());
+            postViewModel.saveDeletedNotes(deletedNotes);
+            gAdapter.notifyItemRemoved(viewHolder.getAdapterPosition());
+            Snackbar.make(layout, deletedNote.getTitle() + " has been removed", Snackbar.LENGTH_LONG).show();
+        }
+        @Override
+        public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
+            new RecyclerViewSwipeDecorator.Builder(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
+                    .addSwipeLeftBackgroundColor(getColor(R.color.red))
+                    .addSwipeLeftActionIcon(R.drawable.ic_baseline_delete_forever_24)
+                    .addSwipeRightBackgroundColor(getColor(R.color.red))
+                    .addSwipeRightActionIcon(R.drawable.ic_baseline_delete_forever_24)
+                    .create()
+                    .decorate();
+            super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
         }
 
-
     };
+
+
+
+
+
 
 
     @Override
     public void itemClick(int position) {
         Intent intent = new Intent(MainActivity.this, NoteData.class);
+        Log.d(TAG, "itemClick: "+mNotes.get(position).getTitle());
         intent.putExtra("Note_Data", mNotes.get(position));
         startActivity(intent);
 
     }
 
+    public void doAllMagic() {
+        MaterialTapTargetPrompt.Builder builder=  new MaterialTapTargetPrompt.Builder(this)
+                .setTarget(R.id.list)
+                .setPrimaryText("Switch View Here")
+                .setSecondaryText("Change From Grid Layout To Linear Layout");
+        builder.show();
+        builder.setPromptStateChangeListener(new MaterialTapTargetPrompt.PromptStateChangeListener() {
+            @Override
+            public void onPromptStateChanged(@NonNull MaterialTapTargetPrompt prompt, int state) {
+               if(state == MaterialTapTargetPrompt.STATE_FOCAL_PRESSED || state == MaterialTapTargetPrompt.STATE_NON_FOCAL_PRESSED) {
+                   editor.putBoolean("ShouldShow",true);
+                   editor.commit();
+                   showDeleted();
+               }
+            }
+        });
+
+    }
+
+    private void showAnother() {
+        new MaterialTapTargetPrompt.Builder(this)
+                .setTarget(R.id.fab)
+                .setPrimaryText("Add Notes Here")
+                .setSecondaryText("Click the Notes icon to add the Notes")
+                .show();
+    }
+
+    private void showDeleted() {
+        new MaterialTapTargetPrompt.Builder(this)
+                .setTarget(R.id.deleted)
+                .setPrimaryText("Deleted Notes")
+                .setSecondaryText("Deleted Notes will be here")
+                .setPromptStateChangeListener(new MaterialTapTargetPrompt.PromptStateChangeListener() {
+                    @Override
+                    public void onPromptStateChanged(@NonNull MaterialTapTargetPrompt prompt, int state) {
+                        if(state== MaterialTapTargetPrompt.STATE_NON_FOCAL_PRESSED){
+                            showAnother();
+                        }
+                    }
+                }).show();
+
+
+    }
 
 }
