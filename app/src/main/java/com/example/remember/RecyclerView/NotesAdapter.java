@@ -5,30 +5,27 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Filter;
-import android.widget.Filterable;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.remember.Model.Notes.java.Notes;
 import com.example.remember.R;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 public class NotesAdapter
         extends RecyclerView.Adapter<NotesAdapter.ViewHolder> {
     onItemClick mItemClick;
-    List<Notes> mNotes;
-    List<Notes> mDuplicate;
-    Context context;
-    Boolean isSwitchView = false;
+   private List<Notes> notesList;
+   private Context context;
+   private Boolean isSwitchView = false;
     private static final String TAG = "NotesAdapter";
 
-    public NotesAdapter(Context context, ArrayList<Notes> mmNotes, onItemClick onItemClick) {
+    public NotesAdapter(Context context, List<Notes> mmNotes, onItemClick onItemClick) {
         this.mItemClick = onItemClick;
         this.context = context;
-        this.mNotes = mmNotes;
+        this.notesList = mmNotes;
+        Log.d(TAG, "NotesAdapter: mmNotes Size "+mmNotes.size());
     }
 
 
@@ -41,15 +38,15 @@ public class NotesAdapter
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        holder.title.setText(mNotes.get(position).getTitle());
-        holder.date.setText(mNotes.get(position).getTimestamp());
-        holder.contents.setText(mNotes.get(position).getContent());
+        holder.title.setText(notesList.get(position).getTitle());
+        holder.date.setText(notesList.get(position).getTimestamp());
+        holder.contents.setText(notesList.get(position).getContent());
 
     }
 
     @Override
     public int getItemCount() {
-        return mNotes.size();
+        return notesList.size();
     }
 
 
@@ -60,12 +57,14 @@ public class NotesAdapter
 
     public void setArrayList(List<Notes> notes) {
         if (notes != null) {
-            mNotes.clear();
-            mNotes.addAll(notes);
+            notesList.clear();
+            notesList.addAll(notes);
         } else {
-            mNotes = notes;
+            notesList = notes;
         }
+        Log.d(TAG, "setArrayList: mNotes Size"+ notesList.size());
         notifyDataSetChanged();
+
     }
 
 

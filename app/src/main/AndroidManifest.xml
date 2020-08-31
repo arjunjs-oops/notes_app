@@ -4,12 +4,16 @@
 
     <application
         android:allowBackup="true"
-        android:fullBackupContent="true"
         android:icon="@drawable/ic_checklist"
         android:label="@string/app_name"
         android:roundIcon="@drawable/ic_checklist"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity android:name=".Deleted"
+            android:theme="@style/DeletedActivityTheme"/>
+        <activity
+            android:name=".SplashActivity"
+            android:theme="@style/SplashScreenTheme" />
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

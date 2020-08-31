@@ -2,6 +2,7 @@ package com.example.remember;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
@@ -20,12 +21,15 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
 
 import com.example.remember.Model.Notes.java.Notes;
 import com.example.remember.Room.Adding.PostViewModel;
 import com.example.remember.Utils.DateTime;
+
+import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt;
+import uk.co.samuelwall.materialtaptargetprompt.extras.backgrounds.RectanglePromptBackground;
+import uk.co.samuelwall.materialtaptargetprompt.extras.focals.RectanglePromptFocal;
 
 public class NoteData extends AppCompatActivity implements
         View.OnTouchListener,
@@ -33,7 +37,6 @@ public class NoteData extends AppCompatActivity implements
         GestureDetector.OnDoubleTapListener,
         View.OnClickListener,
         TextWatcher {
-
     EditText setTitle,addNotes;
     TextView getTitle;
     RelativeLayout mCheck,mEdit;
@@ -43,6 +46,10 @@ public class NoteData extends AppCompatActivity implements
     Notes mFinal;
     PostViewModel postViewModel;
     boolean isNewNote;
+    SharedPreferences sharedPreferences;
+    SharedPreferences.Editor editor;
+    Boolean aBoolean;
+
     private static final String TAG = "NoteData";
     private static final int in_Edit_Mode = 1;
     private static final int in_ViewMode = 0;
@@ -52,9 +59,15 @@ public class NoteData extends AppCompatActivity implements
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.detail_activity);
-        instantiate();
         postViewModel = ViewModelProviders.of(this).get(PostViewModel.class);
-      onClickEventManager();
+        sharedPreferences= this.getSharedPreferences("New_Note",MODE_PRIVATE);
+        editor  = sharedPreferences.edit();
+        aBoolean = sharedPreferences.getBoolean("ShouldShow",false);
+        instantiate();
+       onClickEventManager();
+        if(!aBoolean){
+            magicDo();
+        }
 
 
         if (getIntents()) {
@@ -70,13 +83,19 @@ public class NoteData extends AppCompatActivity implements
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     private void saveChanges(){
-        if(isNewNote){insertData();}
-        else{ update(); }
+        if(isNewNote){
+            insertData();
+            isNewNote=false;
+        }
+        else{
+            update();
+        }
     }
 
 
-    private void update(){ postViewModel.updatePost(mFinal); }
-
+    private void update(){
+        Log.d(TAG, "update: "+mNotes.getId());
+        postViewModel.updatePost(mFinal); }
     private void insertData(){
         postViewModel.savePost(mFinal);
     }
@@ -106,18 +125,17 @@ public class NoteData extends AppCompatActivity implements
         getTitle.setText(mNotes.getTitle());
         addNotes.setText(mNotes.getContent());
     }
-    @RequiresApi(api = Build.VERSION_CODES.O)
     private void setInNew(){
         setTitle.setText("New Note");
-        getTitle.setText("Add Title");
+        getTitle.setText("New Note");
         mNotes = new Notes();
         mFinal = new Notes();
         mNotes.setTitle(getTitle.getText().toString());
         mFinal.setTitle(getTitle.getText().toString());
+        addNotes.setText("Note Description");
         mFinal.setTimestamp(DateTime.getDateTime());
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
     private void inViewMode(){
         state = in_ViewMode;
         mEdit.setVisibility(View.VISIBLE);
@@ -129,25 +147,27 @@ public class NoteData extends AppCompatActivity implements
         setTitle.setVisibility(View.GONE);
         getTitle.setVisibility(View.VISIBLE);
 
+        disableInteraction();
+    }
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private void savingNoteProcess(){
         String temp = addNotes.getText().toString()
                 .replace("\n","")
                 .replace(" ","");
 
         if(temp.length()>0){
             mFinal.setTitle(setTitle.getText().toString());
+            Log.d(TAG, "inViewMode: "+mFinal.getTitle());
             mFinal.setContent(addNotes.getText().toString());
 
 
-
             if(!mFinal.getContent().equals(mNotes.getContent())||
-            !mFinal.getTitle().equals(mNotes.getTitle())){
-                Log.d(TAG, "ID is:  "+mFinal.getId());
-                saveChanges();
+                    !mFinal.getTitle().equals(mNotes.getTitle())){
+                Log.d(TAG, "inViewMode: This is Called or not");
+                    saveChanges();
             }
 
         }
-
-        disableInteraction();
     }
 
     private void inEditMode(){
@@ -160,12 +180,10 @@ public class NoteData extends AppCompatActivity implements
 
         setTitle.setVisibility(View.VISIBLE);
         getTitle.setVisibility(View.GONE);
-
         enableInteraction();
 
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
     private boolean getIntents(){
         if (getIntent().hasExtra("Note_Data")){
              mNotes =  getIntent().getParcelableExtra("Note_Data");
@@ -174,7 +192,6 @@ public class NoteData extends AppCompatActivity implements
              mFinal.setContent(mNotes.getContent());
              mFinal.setTimestamp(mNotes.getTimestamp());
             mFinal.setId(mNotes.getId());
-
             isNewNote = false;
              inViewMode();
             return true;
@@ -275,6 +292,7 @@ public class NoteData extends AppCompatActivity implements
 
         }
         else {
+            savingNoteProcess();
             super.onBackPressed();
         }
     }
@@ -289,10 +307,12 @@ public class NoteData extends AppCompatActivity implements
                 break;
             case R.id.set_text:
                 inEditMode();
+
                 setTitle.requestFocus();
                 setTitle.setSelection(setTitle.length());
                 break;
             case R.id.mEdit:
+                savingNoteProcess();
                 finish();
                 break;
         }
@@ -326,5 +346,34 @@ public class NoteData extends AppCompatActivity implements
     @Override
     public void afterTextChanged(Editable editable) {
 
+    }
+
+    public void magicDo() {
+        MaterialTapTargetPrompt.Builder builder=  new MaterialTapTargetPrompt.Builder(this)
+                .setTarget(R.id.edit_text)
+                .setPrimaryText("Note Title")
+                .setSecondaryText("Add Note Title")
+                .setPromptBackground(new RectanglePromptBackground())
+                .setBackButtonDismissEnabled(true)
+                .setPromptFocal(new RectanglePromptFocal());
+        builder.show();
+        builder.setPromptStateChangeListener(new MaterialTapTargetPrompt.PromptStateChangeListener() {
+            @Override
+            public void onPromptStateChanged(@NonNull MaterialTapTargetPrompt prompt, int state) {
+                if(state == MaterialTapTargetPrompt.STATE_FOCAL_PRESSED || state == MaterialTapTargetPrompt.STATE_NON_FOCAL_PRESSED) {
+                    editor.putBoolean("ShouldShow", true);
+                    editor.commit();
+                    showAnother();
+                }
+            }
+        });
+    }
+
+    private void showAnother() {
+        new MaterialTapTargetPrompt.Builder(this)
+                .setTarget(R.id.check)
+                .setBackButtonDismissEnabled(true)
+                .setPrimaryTextGravity(0x00000011)
+                .setPrimaryText("Click Here After You've set The Note ").show();
     }
 }

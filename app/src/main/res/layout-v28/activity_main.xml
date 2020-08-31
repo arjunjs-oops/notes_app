@@ -35,10 +35,10 @@
             android:queryHint="Enter Title to Search"
             android:layout_marginBottom="10dp"
             android:iconifiedByDefault="false"
-            app:queryHint="Enter Title"
             android:searchIcon="@null"
             android:elevation="10dp"
             android:inputType="textAutoCorrect"
+            android:outlineAmbientShadowColor="#252525"
             android:layout_margin="10dp"
             android:imeOptions="flagNoExtractUi"
             android:id="@+id/search"/>

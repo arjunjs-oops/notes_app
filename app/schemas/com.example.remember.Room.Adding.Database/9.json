@@ -1,8 +1,8 @@
 {
   "formatVersion": 1,
   "database": {
-    "version": 6,
-    "identityHash": "b8a830f25fb8bfc28ecaecd56709ea9b",
+    "version": 9,
+    "identityHash": "720ca4faf613fa6d26406696a4ef34e2",
     "entities": [
       {
         "tableName": "notes",
@@ -44,11 +44,17 @@
       },
       {
         "tableName": "deletedNotes",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `title` TEXT, `content` TEXT, `timestamp` TEXT)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`newId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `key` INTEGER NOT NULL, `title` TEXT, `content` TEXT, `Created` TEXT, `Deleted` TEXT)",
         "fields": [
           {
-            "fieldPath": "id",
-            "columnName": "id",
+            "fieldPath": "newId",
+            "columnName": "newId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "previousID",
+            "columnName": "key",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -65,15 +71,21 @@
             "notNull": false
           },
           {
-            "fieldPath": "timestamp",
-            "columnName": "timestamp",
+            "fieldPath": "created",
+            "columnName": "Created",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "deleted",
+            "columnName": "Deleted",
             "affinity": "TEXT",
             "notNull": false
           }
         ],
         "primaryKey": {
           "columnNames": [
-            "id"
+            "newId"
           ],
           "autoGenerate": true
         },
@@ -84,7 +96,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b8a830f25fb8bfc28ecaecd56709ea9b')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '720ca4faf613fa6d26406696a4ef34e2')"
     ]
   }
 }

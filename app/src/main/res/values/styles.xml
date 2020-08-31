@@ -2,9 +2,17 @@
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
         <!-- Customize your theme here. -->
-        <item name="colorPrimary">#E1A14F</item>
-        <item name="colorPrimaryDark">#C68129</item>
-        <item name="colorAccent">#F1C885</item>
+        <item name="colorPrimary">#FFFFFF</item>
+        <item name="colorPrimaryDark">#FFFFFF</item>
+        <item name="colorAccent">#0E0E0E</item>
+    </style>
+    <style name="SplashScreenTheme" parent = "Theme.MaterialComponents.Light.NoActionBar">
+    <item name="android:windowBackground">@drawable/ic_baseline_format_list_bulleted_24</item>
+</style>
+    <style name="DeletedActivityTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="colorPrimary">#FFFFFF</item>
+        <item name="colorPrimaryDark">#FFFFFF</item>
+        <item name="colorAccent">#0C0C0C</item>
     </style>
 
 </resources>

@@ -4,13 +4,19 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".activities.BaseActivity">
 
-
+            <item
+                android:id="@+id/deleted"
+                app:showAsAction="always"
+                android:visible="true"
+                android:icon="@drawable/ic_baseline_delete_sweep_24"
+                android:title="Deleted" />
 
             <item
                 android:id="@+id/list"
                 app:showAsAction="always"
                 android:icon="@drawable/ic_baseline_format_list_bulleted_24"
-                android:title="Deleted" />
+                android:title="change" />
+
 
 
 

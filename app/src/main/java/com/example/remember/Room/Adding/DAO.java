@@ -7,8 +7,10 @@ import androidx.room.Insert;
 import androidx.room.Query;
 import androidx.room.Update;
 
+import com.example.remember.Model.Notes.java.DeletedNotes;
 import com.example.remember.Model.Notes.java.Notes;;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Dao
@@ -30,16 +32,18 @@ public  interface DAO {
 
     @Delete
     void deleteNotes(Notes...notes);
+    @Delete
+    void DADeleted(List<DeletedNotes> deletedNotes);
 
 
+    //For DeletedNotes
 
+    @Insert(entity = DeletedNotes.class)
+    void addDeletedNotes(DeletedNotes deletedNotes);
 
+    @Query("SELECT * FROM deletedNotes")
+    LiveData<List<DeletedNotes>> DELETED_NOTES_LIST();
 
-
-
-
-
-
-
-
+    @Delete(entity = DeletedNotes.class)
+    void deleteDeleted(DeletedNotes notes);
 }

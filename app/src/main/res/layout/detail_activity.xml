@@ -7,6 +7,7 @@
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        app:elevation="0dp"
         android:id="@+id/app_bar">
 
         <androidx.appcompat.widget.Toolbar
@@ -27,6 +28,7 @@
         android:imeOptions="flagNoExtractUi"
         android:windowSoftInputMode="stateVisible"
         android:background="@null"
+        android:inputType="textAutoCorrect"
         android:layout_height="match_parent"/>
 
 
