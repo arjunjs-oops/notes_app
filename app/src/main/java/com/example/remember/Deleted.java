@@ -29,6 +29,8 @@ import com.example.remember.Model.Notes.java.Notes;
 import com.example.remember.RecyclerView.DelNoteAdapter;
 import com.example.remember.RecyclerView.NotesAdapter;
 import com.example.remember.Room.Adding.PostViewModel;
+import com.example.remember.Utils.ReverseList;
+import com.example.remember.Utils.ReverseListDeleted;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
@@ -53,7 +55,7 @@ public class Deleted extends AppCompatActivity {
             @Override
             public void onChanged(List<DeletedNotes> deletedNotes) {
                 Log.d(TAG, "onChanged: "+deletedNotes.size());
-                gAdapter.setArrayList(deletedNotes);
+                gAdapter.setArrayList(ReverseListDeleted.reverseArrayList(deletedNotes));
             }
         });
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -84,9 +86,9 @@ public class Deleted extends AppCompatActivity {
             int position = viewHolder.getAdapterPosition();
             DeletedNotes deletedNotes1 = deletedNotes.get(position);
             if (direction == ItemTouchHelper.RIGHT) {
-                viewModel.deleteDeleted(deletedNotes1);
                 gAdapter.notifyItemRemoved(viewHolder.getAdapterPosition());
-                gAdapter.setArrayList(deletedNotes);
+                viewModel.deleteDeleted(deletedNotes1);
+
 
             } else {
                 Notes notes = new Notes();
@@ -94,7 +96,6 @@ public class Deleted extends AppCompatActivity {
                 notes.setTimestamp(deletedNotes1.getTimestamp());
                 notes.setContent(deletedNotes1.getContent());
                 gAdapter.notifyItemRemoved(viewHolder.getAdapterPosition());
-                gAdapter.setArrayList(deletedNotes);
                 viewModel.savePost(notes);
                 viewModel.deleteDeleted(deletedNotes1);
             }

@@ -16,17 +16,17 @@ import java.util.List;
 public class NotesAdapter
         extends RecyclerView.Adapter<NotesAdapter.ViewHolder> {
     onItemClick mItemClick;
-   private List<Notes> notesList;
+   private List<Notes> notesList = new ArrayList<>();
    private Context context;
    private Boolean isSwitchView = false;
     private static final String TAG = "NotesAdapter";
 
-    public NotesAdapter(Context context, List<Notes> mmNotes, onItemClick onItemClick) {
+    public NotesAdapter(Context context,onItemClick onItemClick) {
         this.mItemClick = onItemClick;
         this.context = context;
-        this.notesList = mmNotes;
-        Log.d(TAG, "NotesAdapter: mmNotes Size "+mmNotes.size());
     }
+
+
 
 
     @NonNull
@@ -60,9 +60,8 @@ public class NotesAdapter
             notesList.clear();
             notesList.addAll(notes);
         } else {
-            notesList = notes;
+            notesList =notes;
         }
-        Log.d(TAG, "setArrayList: mNotes Size"+ notesList.size());
         notifyDataSetChanged();
 
     }

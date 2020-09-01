@@ -10,7 +10,6 @@ import com.example.remember.Model.Notes.java.Notes;
 
 ;
 
-
 @androidx.room.Database(entities = {Notes.class, DeletedNotes.class},views = {},version = 10)
 public abstract class Database extends RoomDatabase {
     

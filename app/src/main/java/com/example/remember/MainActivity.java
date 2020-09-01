@@ -30,6 +30,7 @@ import com.example.remember.Model.Notes.java.Notes;
 import com.example.remember.RecyclerView.NotesAdapter;
 import com.example.remember.Room.Adding.PostViewModel;
 import com.example.remember.Utils.DateTime;
+import com.example.remember.Utils.ReverseList;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
@@ -52,6 +53,7 @@ public class MainActivity extends AppCompatActivity
     PostViewModel postViewModel;
     private List<Notes> mNotes = new ArrayList<>();
     CoordinatorLayout layout;
+    List<Notes> ulta = new ArrayList<>();
     private static final String NamePreference="RememberAppPreference";
     SearchView searchView;
     Notes deletedNote;
@@ -72,7 +74,9 @@ public class MainActivity extends AppCompatActivity
         preferences = this.getSharedPreferences(NamePreference,MODE_PRIVATE);
         editor = preferences.edit();
         aBoolean = preferences.getBoolean("ShouldShow",false);
-        if(!aBoolean){ doAllMagic(); }
+        if(!aBoolean){
+            doAllMagic();
+        }
 
          setSupportActionBar((MaterialToolbar)findViewById(R.id.toolbar));
 
@@ -87,7 +91,7 @@ public class MainActivity extends AppCompatActivity
         postViewModel.getAllPosts().observe(this, new Observer<List<Notes>>() {
             @Override
             public void onChanged(List<Notes> posts) {
-                mNotes = posts;
+                mNotes = ReverseList.reverseArrayList(posts);
                 gAdapter.setArrayList(mNotes);
             }
         });
@@ -103,6 +107,7 @@ public class MainActivity extends AppCompatActivity
                 }
             });
         }
+
 
 
     @Override
@@ -178,7 +183,7 @@ public class MainActivity extends AppCompatActivity
 
 
     private void setRecyclerView() {
-        gAdapter = new NotesAdapter(this, mNotes, this);
+        gAdapter = new NotesAdapter(this,this);
         recyclerView.setAdapter(gAdapter);
         recyclerView.setLayoutManager(new StaggeredGridLayoutManager(2, 1));
         recyclerView.setItemAnimator(new DefaultItemAnimator());
